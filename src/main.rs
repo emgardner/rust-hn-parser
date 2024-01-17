@@ -4,7 +4,8 @@ use scraper::{Html, Selector, ElementRef};
 use chrono::{Datelike, NaiveDate, Duration, Local};
 use std::fs::File;
 use std::io::{BufWriter, Write};
-use serde::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize}; 
+use tokio::time::{sleep, Duration as TokioDuration };
 
 fn generate_all_days(year: i32, month: u32, day: u32) -> Vec<String> {
     let mut dates = Vec::new();
@@ -17,8 +18,6 @@ fn generate_all_days(year: i32, month: u32, day: u32) -> Vec<String> {
     }
     dates
 }
-
-
 
 #[derive(Debug)]
 pub enum RowType {
@@ -60,7 +59,6 @@ pub struct Post {
 }
 
 async fn get_page(params: &PageParams) -> ReqwestResult<String> {
-    // reqwest::get("https://news.ycombinator.com/news")
     reqwest::get(format_request(params))
         .await?
         .text()
@@ -192,6 +190,7 @@ async fn get_day_posts(date: String) -> std::io::Result<usize> {
         } else {
             break;
         }
+        sleep(TokioDuration::from_millis(1000)).await;
     }
     let file = File::create(format!("./data/{}.json", date))?;
     let mut writer = BufWriter::new(file);
@@ -203,12 +202,11 @@ async fn get_day_posts(date: String) -> std::io::Result<usize> {
 #[tokio::main]
 async fn main() {
     let days = generate_all_days(2007, 10, 1);
-    // println!("{days:?}");
     // let res = get_day_posts("2024-01-15".to_string()).await;
-    // println!("{res:?}");
     for day in days {
         let res = get_day_posts(day.to_string()).await;
         println!("{day:?} {res:?}");
+        sleep(TokioDuration::from_millis(1000)).await;
     }
 
 }
