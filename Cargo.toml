@@ -4,9 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.79"
 axum = "0.7.4"
 chrono = "0.4.31"
-reqwest = "0.11.23"
+reqwest = { version = "0.11.23", features = ["json"] }
 scraper = "0.18.1"
 serde = { version = "1.0.195", features = [ "derive" ] }
 serde_json = "1.0.111"
